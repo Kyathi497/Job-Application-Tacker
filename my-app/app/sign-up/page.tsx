@@ -21,30 +21,41 @@ export default function SignUp() {
 
     const router = useRouter();
 
-    async  function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setError("");
         setLoading(true);
 
         try {
-            const result = signUp.email({
-                name,
-                email,
-                password
+            const result = await signUp.email({
+            name,
+            email,
+            password,
             });
 
-            if ((await result).error) {
-                setError("Failed to sign-up")
+            if (result?.error) {
+            // Handle specific errors
+            if (
+                result.error.code === "USER_ALREADY_EXISTS" ||
+                result.error.message?.toLowerCase().includes("already")
+            ) {
+                setError("Email already exists. Please sign in.");
             } else {
-                router.push('/dashboard')
+                setError(result.error.message || "Failed to sign up.");
             }
-             
-        } catch (error) {
-            setError('An Unexpected error occured')
-        } finally{
-            setLoading(false);
-        }
-    }
+            return;
+            }
+
+    // Success
+    router.push("/dashboard");
+
+  } catch (error) {
+    setError("An unexpected error occurred. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+}
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-white p-4">
             <Card className="w-full max-w-md border-gray-200 shadow-lg ">

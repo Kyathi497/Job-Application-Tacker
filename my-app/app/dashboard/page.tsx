@@ -1,11 +1,38 @@
+import KanbanBoard  from "@/components/kanban-borad";
+import { getSession } from "@/lib/auth/auth"
+import connectDB from "@/lib/db";
+import { Board } from "@/lib/models";
 
 
 
-export default function Dashboard() {
+export default async function Dashboard() {
+    const session = await getSession();
+    await connectDB();
+
+    const board = await Board.findOne({
+        userId: session?.user.id,
+        name: "Job Hunt",
+    }).populate({
+        path: "columns",
+        populate: {
+            path: "jobApplications",
+        },
+    });
+
+    console.log(board);
+
+    // Convert MongoDB document to plain object for Client Component
+    const boardData = board ? JSON.parse(JSON.stringify(board)) : null;
+
     return(
-        <div className="flex items-center justify-start">
-            <p>Dashboard goes here..</p>
-            
+        <div className="min-h-screen bg-white">
+            <div className="container mx-auto p-6">
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-black">{boardData?.name}</h1>
+                    <p className="text-gray-600">Track your job applications</p>
+                </div>
+                <KanbanBoard board={boardData} userId={session?.user.id || ""}/>
+            </div>
         </div>
     )
 } 

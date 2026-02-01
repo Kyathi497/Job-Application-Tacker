@@ -19,10 +19,22 @@ export default async function Dashboard() {
         },
     });
 
-    console.log(board);
+    console.log("Fetched board from database:", board);
+
+    if (!board) {
+        console.log("No board found for user:", session?.user.id);
+        return (
+            <div className="min-h-screen bg-white">
+                <div className="container mx-auto p-6">
+                    <h1 className="text-3xl font-bold text-black">No Board Found</h1>
+                    <p className="text-gray-600">Please create a board first.</p>
+                </div>
+            </div>
+        );
+    }
 
     // Convert MongoDB document to plain object for Client Component
-    const boardData = board ? JSON.parse(JSON.stringify(board)) : null;
+    const boardData = JSON.parse(JSON.stringify(board));
 
     return(
         <div className="min-h-screen bg-white">

@@ -44,6 +44,12 @@ export default function CreateJobApplicationDialog({
     e.preventDefault();
 
     try {
+      console.log("Submitting job application:", {
+        ...formData,
+        columnId,
+        boardId,
+      });
+
       const result = await createJobApplication({
         ...formData,
         columnId,
@@ -54,20 +60,25 @@ export default function CreateJobApplicationDialog({
           .filter((tag) => tag.length > 0),
       });
 
+      console.log("Create job result:", result);
+
       if (!result.error) {
         setFormData(INITIAL_FORM_DATA);
         setOpen(false);
+        // The page should automatically refresh due to revalidatePath
       } else {
         console.error("Failed to create job: ", result.error);
+        alert("Failed to create job: " + result.error);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error creating job:", err);
+      alert("An error occurred while creating the job");
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button
           variant="outline"
           className="w-full mb-4 justify-start text-muted-foreground border-dashed border-2 hover:border-solid hover:bg-muted/50"
@@ -180,13 +191,14 @@ export default function CreateJobApplicationDialog({
 
           <DialogFooter>
             <Button
+              
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
             >
               Cancel
             </Button>
-            <Button type="submit">Add Application</Button>
+            <Button  type="submit">Add Application</Button>
           </DialogFooter>
         </form>
       </DialogContent>

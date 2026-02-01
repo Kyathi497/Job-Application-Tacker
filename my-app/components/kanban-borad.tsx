@@ -3,11 +3,11 @@
 import { Board, Column, JobApplication } from "@/lib/models/models.types"
 import { Award, Calendar, CheckCircle2, Mic, MoreVertical, Trash2, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import CreateJobApplicationDialog from "./create-job-dialog";
 import JobApplicationCard from "./job-application-card";
+import { useBoard } from "@/lib/hooks/useBoards";
 
 
 interface KanbanBoardProps {
@@ -43,11 +43,15 @@ const COLUMN_CONFIG: Array<ColConfig> = [
 ];
 
 function DroppableColumn({column, config, boardId, sortedColumns}: {column: Column; config:ColConfig; boardId: string; sortedColumns: Column[] }) {
-
+    console.log("DroppableColumn received column:", column);
+    console.log("Column jobApplications:", column.jobApplications);
+    
     const sortedJobs = column.jobApplications?.sort((a,b) => a.order-b.order) || [];
+    console.log("Sorted jobs:", sortedJobs);
+    
     return (
         <Card className="min-w-[300px] flex-shrink-0 shadow-md p-0">
-            <CardHeader className={`${config.color} text-white rounded-t-lg pd-3 pt-3`}>
+            <CardHeader className={`${config.color} text-white rounded-t-lg p-3`}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         {config.icon}
@@ -75,14 +79,20 @@ function DroppableColumn({column, config, boardId, sortedColumns}: {column: Colu
             </CardHeader>\
 
             <CardContent className={`space-y-2 pt-4 bg-gray-50/50 min-h-[400px] rounded-b-lg `}>
-
-                {sortedJobs.map((job, index)=> (
-                    <SortableJobCard 
-                        key={index} 
-                        job={{...job, columnId: job.columnId || column._id}}
-                        columns={sortedColumns}
-                                />
-                ))}
+                {sortedJobs.length === 0 ? (
+                    <div className="text-center text-gray-500 py-8">
+                        <p>No job applications yet</p>
+                        <p className="text-sm">Click the button below to add one</p>
+                    </div>
+                ) : (
+                    sortedJobs.map((job, index)=> (
+                        <SortableJobCard 
+                            key={index} 
+                            job={{...job, columnId: job.columnId || column._id}}
+                            columns={sortedColumns}
+                        />
+                    ))
+                )}
 
                 <CreateJobApplicationDialog columnId={column._id} boardId={boardId}/>
             </CardContent>
@@ -107,34 +117,31 @@ export default function KanbanBoard({board, userId}: KanbanBoardProps) {
         return <div>No board data available</div>;
     }
 
-    const columns = board.columns;
-    console.log("Board loaded:", board);
-    console.log("Columns:", columns);
-    console.log("First column job applications:", columns[0]?.jobApplications);
+    // const columns = board.columns;
     
+    const {columns, moveJob} =useBoard(board);
+
     const sortedColumns = columns?.sort((a,b) => a.order-b.order) || [];
 
     return (
-        <>
-            <div className="w-full overflow-x-auto pb-4">
-                <div className="flex gap-4 min-w-max px-4">
-                    {columns.map((col, index) => {
-                        const config = COLUMN_CONFIG[index] || {
-                            color: "bg-gray-500",
-                            icon: <Calendar className="h-4 w-4"/>
-                        };
-                        return (
-                            <DroppableColumn
-                                key={index}
-                                column={col}
-                                config={config}
-                                boardId={board._id}
-                                sortedColumns={sortedColumns}
-                            />
-                        )
-                    })}
-                </div>
+        <div className="w-full overflow-x-auto pb-4">
+            <div className="flex gap-4 min-w-max px-4">
+                {columns.map((col, index) => {
+                    const config = COLUMN_CONFIG[index] || {
+                        color: "bg-gray-500",
+                        icon: <Calendar className="h-4 w-4"/>
+                    };
+                    return (
+                        <DroppableColumn
+                            key={index}
+                            column={col}
+                            config={config}
+                            boardId={board._id}
+                            sortedColumns={sortedColumns}
+                        />
+                    )
+                })}
             </div>
-        </>
+        </div>
     )
 }

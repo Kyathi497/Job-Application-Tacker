@@ -29,14 +29,15 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {session?.user ? (
             <>
-              <Link href="/dashboard">
-                <Button
-                  variant="ghost"
-                  className="text-gray-700 hover:text-black"
-                >
+              <Button
+                variant="ghost"
+                className="text-gray-700 hover:text-black"
+                asChild
+              >
+                <Link href="/dashboard">
                   Dashboard
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -68,19 +69,20 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/sign-in">
-                <Button
-                  variant="ghost"
-                  className="text-gray-700 hover:text-black"
-                >
+              <Button
+                variant="ghost"
+                className="text-gray-700 hover:text-black"
+                asChild
+              >
+                <Link href="/sign-in">
                   Log In
-                </Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button className="bg-primary hover:bg-primary/90">
+                </Link>
+              </Button>
+              <Button className="bg-primary hover:bg-primary/90" asChild>
+                <Link href="/sign-up">
                   Start for free
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </>
           )}
         </div>

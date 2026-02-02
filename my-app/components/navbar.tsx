@@ -3,6 +3,7 @@
 import { Briefcase } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { useEffect, useState } from "react";
 
 import {
   DropdownMenu,
@@ -16,6 +17,11 @@ import { useSession } from "@/lib/auth/auth-client";
 
 export default function Navbar() {
   const { data: session } = useSession();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   return (
     <nav className="border-b border-gray-200 bg-white">
       <div className="container mx-auto flex h-16 items-center px-4 justify-between">
@@ -27,7 +33,25 @@ export default function Navbar() {
           Job Tracker
         </Link>
         <div className="flex items-center gap-4">
-          {session?.user ? (
+          {!isClient ? (
+            // Show loading state or default state during SSR
+            <>
+              <Button
+                variant="ghost"
+                className="text-gray-700 hover:text-black"
+                asChild
+              >
+                <Link href="/sign-in">
+                  Log In
+                </Link>
+              </Button>
+              <Button className="bg-primary hover:bg-primary/90" asChild>
+                <Link href="/sign-up">
+                  Start for free
+                </Link>
+              </Button>
+            </>
+          ) : session?.user ? (
             <>
               <Button
                 variant="ghost"

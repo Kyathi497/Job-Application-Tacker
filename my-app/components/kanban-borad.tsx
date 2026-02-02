@@ -42,7 +42,7 @@ const COLUMN_CONFIG: Array<ColConfig> = [
   },
 ];
 
-function DroppableColumn({column, config, boardId, sortedColumns}: {column: Column; config:ColConfig; boardId: string; sortedColumns: Column[] }) {
+function DroppableColumn({column, config, boardId, sortedColumns, onMove}: {column: Column; config:ColConfig; boardId: string; sortedColumns: Column[]; onMove: (jobId: string, newColumnId: string) => Promise<void> }) {
     console.log("DroppableColumn received column:", column);
     console.log("Column jobApplications:", column.jobApplications);
     
@@ -90,6 +90,7 @@ function DroppableColumn({column, config, boardId, sortedColumns}: {column: Colu
                             key={index} 
                             job={{...job, columnId: job.columnId || column._id}}
                             columns={sortedColumns}
+                            onMove={onMove}
                         />
                     ))
                 )}
@@ -101,12 +102,12 @@ function DroppableColumn({column, config, boardId, sortedColumns}: {column: Colu
 
 }
 
-function SortableJobCard({job, columns}: {job: JobApplication; columns: Column[]}) {
+function SortableJobCard({job, columns, onMove}: {job: JobApplication; columns: Column[]; onMove: (jobId: string, newColumnId: string) => Promise<void>}) {
     console.log("Rendering SortableJobCard:", job);
     
     return (
         <div className="mb-2">
-            <JobApplicationCard job={job} columns={columns}/>
+            <JobApplicationCard job={job} columns={columns} onMove={onMove}/>
         </div>
     )
 }
@@ -138,6 +139,7 @@ export default function KanbanBoard({board, userId}: KanbanBoardProps) {
                             config={config}
                             boardId={board._id}
                             sortedColumns={sortedColumns}
+                            onMove={moveJob}
                         />
                     )
                 })}
